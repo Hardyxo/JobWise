@@ -1,24 +1,17 @@
-export const config = { runtime: 'edge' };
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
 
-export default async function handler(req) {
-  if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
-  }
+  if (req.method === 'OPTIONS') { res.status(200).end(); return; }
+  if (req.method !== 'POST') { res.status(405).json({ error: 'Method not allowed' }); return; }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    return new Response(JSON.stringify({ error: 'API key not configured on server' }), { status: 500 });
-  }
+  if (!apiKey) { res.status(500).json({ error: 'Clé API manquante sur le serveur' }); return; }
 
-  try {
-    const body = await req.json();
-    const { keywords, location } = body;
+  const { keywords, location } = req.body;
+  if (!keywords?.length) { res.status(400).json({ error: 'Mots-clés requis' }); return; }
 
-    if (!keywords || !keywords.length) {
-      return new Response(JSON.stringify({ error: 'Keywords required' }), { status: 400 });
-    }
-
-    const prompt = `Recherche d'emploi en Suisse. Mots-clés: ${keywords.join(', ')}. Zone: ${location || 'Suisse'}. Domaine: Tech/Dev.
+  const prompt = `Recherche d'emploi en Suisse. Mots-clés: ${keywords.join(', ')}. Zone: ${location || 'Suisse'}. Domaine: Tech/Dev.
 Trouve 5 offres récentes sur jobs.ch, jobup.ch, indeed.ch, linkedin.com.
 Format strict pour chaque offre:
 ---OFFRE---
@@ -31,6 +24,7 @@ Lien: [URL complète]
 Description: [3-4 phrases sur le rôle, les missions et compétences requises]
 ---FIN---`;
 
+  try {
     const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -49,19 +43,24 @@ Description: [3-4 phrases sur le rôle, les missions et compétences requises]
 
     if (!anthropicRes.ok) {
       const err = await anthropicRes.text();
-      return new Response(JSON.stringify({ error: `Anthropic error: ${anthropicRes.status}` }), { status: 502 });
+      res.status(502).json({ error: `Erreur Anthropic: ${anthropicRes.status} — ${err}` });
+      return;
     }
 
-    // Stream the response directly to the client
-    return new Response(anthropicRes.body, {
-      headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+
+    const reader = anthropicRes.body.getReader();
+    const decoder = new TextDecoder();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      res.write(decoder.decode(value));
+    }
+    res.end();
 
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    res.status(500).json({ error: err.message });
   }
 }
