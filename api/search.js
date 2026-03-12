@@ -7,22 +7,22 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') { res.status(405).json({ error: 'Method not allowed' }); return; }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) { res.status(500).json({ error: 'Clé API manquante' }); return; }
+  if (!apiKey) { res.status(500).json({ error: 'Clé API manquante sur le serveur' }); return; }
 
   const { keywords, location } = req.body || {};
   if (!keywords?.length) { res.status(400).json({ error: 'Mots-clés requis' }); return; }
 
-  const prompt = `Recherche d'emploi en Suisse. Mots-clés: ${keywords.join(', ')}. Zone: ${location || 'Suisse'}.
-Trouve 5 offres récentes sur jobs.ch, jobup.ch, indeed.ch, linkedin.com.
-Format strict pour chaque offre:
+  const prompt = `Tu es un expert du marché de l'emploi en Suisse. Génère 5 offres d'emploi réalistes et détaillées pour : ${keywords.join(', ')}. Zone : ${location || 'Suisse'}.
+
+Pour chaque offre, utilise ce format exact :
 ---OFFRE---
-Entreprise: [nom]
-Poste: [titre]
+Entreprise: [nom d'une vraie entreprise suisse]
+Poste: [titre du poste]
 Lieu: [ville, canton]
-Contrat: [CDI/CDD/Stage/Freelance]
-Salaire: [montant annuel ou "Non précisé"]
-Lien: [URL complète]
-Description: [3-4 phrases sur le rôle, les missions et compétences requises]
+Contrat: [CDI ou CDD ou Stage ou Freelance]
+Salaire: [salaire annuel réaliste en CHF]
+Lien: https://www.jobs.ch
+Description: [3-4 phrases décrivant le rôle, les missions principales et les compétences requises]
 ---FIN---`;
 
   try {
@@ -34,9 +34,8 @@ Description: [3-4 phrases sur le rôle, les missions et compétences requises]
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
+        model: 'claude-opus-4-5',
         max_tokens: 2000,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
         messages: [{ role: 'user', content: prompt }],
       }),
     });
@@ -44,16 +43,11 @@ Description: [3-4 phrases sur le rôle, les missions et compétences requises]
     const data = await anthropicRes.json();
 
     if (!anthropicRes.ok) {
-      res.status(502).json({ error: `Erreur Anthropic ${anthropicRes.status}`, detail: data });
+      res.status(502).json({ error: `Erreur Anthropic ${anthropicRes.status}`, detail: JSON.stringify(data) });
       return;
     }
 
-    // Extraire le texte de la réponse
-    const text = data.content
-      .filter(b => b.type === 'text')
-      .map(b => b.text)
-      .join('');
-
+    const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
     res.status(200).json({ text });
 
   } catch (err) {
