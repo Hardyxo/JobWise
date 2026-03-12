@@ -267,7 +267,7 @@ async function doSearch(){
     const data = await res.json();
     if(!res.ok){ showError(data.error||'Erreur serveur'); return; }
     offerStore = data.offers || [];
-    if(!offerStore.length) showError('Aucune offre trouvée. Essaie d\'autres mots-clés ou une région plus large (ex: suisse).');
+    if(!offerStore.length) showError('showError(JSON.stringify(data.debug || 'pas de debug'));');
     else renderOffers(offerStore);
   } catch(err){
     showError('Erreur de connexion. Réessaie dans un instant.');
