@@ -41,7 +41,7 @@
   .btn-search{padding:12px 28px;background:var(--accent);color:#000;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;white-space:nowrap;}
   .btn-search:hover:not(:disabled){background:var(--accent2);transform:translateY(-1px);}
   .btn-search:disabled{opacity:.55;cursor:default;transform:none;}
-  .error-box{background:rgba(255,91,91,.06);border:1px solid rgba(255,91,91,.25);border-radius:10px;padding:13px 18px;font-size:13px;color:var(--danger);margin-bottom:16px;display:none;}
+  .error-box{background:rgba(255,91,91,.06);border:1px solid rgba(255,91,91,.25);border-radius:10px;padding:13px 18px;font-size:12px;color:var(--danger);margin-bottom:16px;display:none;word-break:break-all;}
   .error-box.visible{display:block;}
   .loading-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:32px;margin-bottom:16px;display:none;text-align:center;}
   .loading-box.visible{display:block;}
@@ -50,9 +50,6 @@
   .loading-text{font-size:13px;color:var(--accent);font-family:'DM Mono',monospace;}
   .results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
   .results-label{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase;}
-  .sort-row{display:flex;gap:6px;}
-  .sort-btn{padding:4px 12px;border-radius:20px;font-size:11px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
-  .sort-btn.active{background:var(--accent);color:#000;border-color:var(--accent);}
   .offers-grid{display:grid;gap:10px;}
   .offer-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;transition:border .2s,box-shadow .2s;animation:slideUp .25s ease both;}
   @keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -74,9 +71,9 @@
   .btn-voir{padding:7px 16px;background:var(--accent);color:#000;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:all .2s;}
   .btn-voir:hover{background:var(--accent2);}
   .btn-jp{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;border:none;}
-  .btn-jp-ready{background:rgba(0,217,126,.08);color:var(--accent);border:1px solid rgba(0,217,126,.2)!important;}
+  .btn-jp-ready{background:rgba(0,217,126,.08);color:var(--accent);border:1px solid rgba(0,217,126,.2) !important;}
   .btn-jp-ready:hover{background:rgba(0,217,126,.16);}
-  .btn-jp-done{background:rgba(107,117,135,.08);color:var(--muted);border:1px solid var(--border)!important;cursor:default;}
+  .btn-jp-done{background:rgba(107,117,135,.08);color:var(--muted);border:1px solid var(--border) !important;cursor:default;}
   .match-highlight{background:rgba(0,217,126,.18);color:var(--accent);border-radius:3px;padding:0 2px;}
   .stats-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
   .stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;min-width:85px;text-align:center;}
@@ -151,29 +148,28 @@
   </div>
 </nav>
 
-<!-- RECHERCHE -->
 <div class="page active" id="page-search">
   <h1 class="page-title">Offres du marché suisse</h1>
-  <p class="page-sub">Mots-clés pré-configurés selon ton profil · Résultats en direct de <strong style="color:var(--text)">jobs.ch</strong> et <strong style="color:var(--text)">jobup.ch</strong> · Clique sur une offre pour voir le détail</p>
+  <p class="page-sub">Résultats en direct de <strong style="color:var(--text)">jobs.ch</strong> et <strong style="color:var(--text)">jobup.ch</strong> · Clique sur une offre pour voir le détail</p>
 
   <div class="search-box">
-    <label class="field-label">Mots-clés — filtrés dans le titre et la description des annonces</label>
+    <label class="field-label">Mots-clés</label>
     <div class="tags-row" id="tags-row"></div>
     <div class="kw-input-row">
-      <input class="kw-input" id="kw-input" placeholder="Ajouter un mot-clé…" onkeydown="if(event.key==='Enter')addKeyword()"/>
-      <button class="btn-add" onclick="addKeyword()">+ Ajouter</button>
+      <input class="kw-input" id="kw-input" placeholder="Ajouter un mot-clé…"/>
+      <button class="btn-add" id="btn-add">+ Ajouter</button>
     </div>
   </div>
 
   <div class="location-box">
     <div>
       <label class="field-label">Région / Canton</label>
-      <input class="loc-input" id="loc-input" value="vaud" placeholder="Ex: vaud, lausanne, suisse…"/>
+      <input class="loc-input" id="loc-input" value="vaud" placeholder="Ex: vaud, lausanne…"/>
     </div>
-    <button class="btn-search" id="btn-search" onclick="doSearch()">🔍 Chercher les offres</button>
+    <button class="btn-search" id="btn-search">🔍 Chercher les offres</button>
   </div>
 
-  <div class="error-box" id="error-box">⚠️ <span id="error-msg"></span></div>
+  <div class="error-box" id="error-box"></div>
 
   <div class="loading-box" id="loading-box">
     <div class="spinner"></div>
@@ -183,33 +179,27 @@
   <div id="results-section" style="display:none">
     <div class="results-header">
       <div class="results-label" id="results-label"></div>
-      <div class="sort-row">
-        <button class="sort-btn active" id="sort-date" onclick="sortOffers('date',this)">📅 Plus récentes</button>
-        <button class="sort-btn" id="sort-match" onclick="sortOffers('match',this)">🎯 Pertinence</button>
-      </div>
     </div>
     <div class="offers-grid" id="offers-grid"></div>
   </div>
 </div>
 
-<!-- TRACKER -->
 <div class="page" id="page-tracker">
   <h1 class="page-title" style="margin-bottom:4px">Mes candidatures</h1>
-  <p class="page-sub">Clique sur le <strong style="color:var(--text)">statut</strong> pour le faire évoluer · sur la <strong style="color:var(--text)">date de réponse</strong> pour la renseigner</p>
+  <p class="page-sub">Clique sur le <strong style="color:var(--text)">statut</strong> pour le faire évoluer</p>
   <div class="stats-row" id="stats-row"></div>
   <div class="filter-row" id="filter-row"></div>
   <div id="tracker-content"></div>
 </div>
 
-<!-- MODAL -->
 <div class="modal-backdrop" id="confirm-modal">
   <div class="modal">
     <h3>✅ Confirmer la candidature</h3>
-    <p>Tu confirmes avoir postulé ? La ligne sera créée dans ton suivi avec la date d'aujourd'hui.</p>
+    <p>Tu confirmes avoir postulé ? La ligne sera créée dans ton suivi.</p>
     <div class="modal-offer-box" id="modal-offer-info"></div>
     <div class="modal-btns">
-      <button class="btn-mcancel" onclick="closeModal()">Annuler</button>
-      <button class="btn-mconfirm" onclick="confirmApply()">Oui, j'ai postulé ✓</button>
+      <button class="btn-mcancel" id="btn-mcancel">Annuler</button>
+      <button class="btn-mconfirm" id="btn-mconfirm">Oui, j'ai postulé ✓</button>
     </div>
   </div>
 </div>
@@ -217,227 +207,227 @@
 <div class="toast" id="toast">🎉 <span id="toast-msg"></span></div>
 
 <script>
-// Mots-clés pré-configurés pour le profil d'Ardit (ingénieur mécanique, Vaud)
-const DEFAULT_KEYWORDS = [
-  'ingénieur mécanique','conception mécanique','mechanical engineer',
-  'SolidWorks','microengineering','R&D','dispositifs médicaux',
-  'bureau d\'études','prototype','simulation mécanique'
-];
+var DEFAULT_KEYWORDS = ['ingenieur mecanique','conception mecanique','mechanical engineer','SolidWorks','microengineering','bureau etudes','prototype'];
+var STATUS_LIST = ['En attente','Entretien','Accepte','Refuse','Sans reponse'];
+var STATUS_CLS  = {'En attente':'s-attente','Entretien':'s-entretien','Accepte':'s-accepte','Refuse':'s-refuse','Sans reponse':'s-silence'};
+var STATUS_ICON = {'En attente':'⏳','Entretien':'📅','Accepte':'✓','Refuse':'✗','Sans reponse':'○'};
 
-const STATUS_LIST = ['En attente','Entretien','Accepté','Refusé','Sans réponse'];
-const STATUS_CLS  = {'En attente':'s-attente','Entretien':'s-entretien','Accepté':'s-accepte','Refusé':'s-refuse','Sans réponse':'s-silence'};
-const STATUS_ICON = {'En attente':'⏳','Entretien':'📅','Accepté':'✓','Refusé':'✗','Sans réponse':'○'};
+var keywords = [];
+try { keywords = JSON.parse(localStorage.getItem('jw-keywords')) || DEFAULT_KEYWORDS.slice(); } catch(e){ keywords = DEFAULT_KEYWORDS.slice(); }
+var applications = [];
+try { applications = JSON.parse(localStorage.getItem('jw-apps')) || []; } catch(e){ applications = []; }
+var offerStore = [];
+var pendingOffer = null;
+var currentFilter = 'Tous';
 
-let keywords     = JSON.parse(localStorage.getItem('jw-keywords')||'null') || [...DEFAULT_KEYWORDS];
-let applications = JSON.parse(localStorage.getItem('jw-apps')||'[]');
-let offerStore   = [];
-let pendingOffer = null;
-let currentFilter= 'Tous';
+function esc(t){ return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// ── Keywords ──────────────────────────────────────────────────────────────
 function renderKeywords(){
-  document.getElementById('tags-row').innerHTML = keywords.map((k,i) =>
-    `<span class="kw-tag">${escHtml(k)}<button onclick="removeKeyword(${i})">×</button></span>`
-  ).join('');
+  var html = '';
+  for(var i=0;i<keywords.length;i++){
+    html += '<span class="kw-tag">'+esc(keywords[i])+'<button data-i="'+i+'">×</button></span>';
+  }
+  document.getElementById('tags-row').innerHTML = html;
+  var btns = document.getElementById('tags-row').querySelectorAll('button');
+  for(var j=0;j<btns.length;j++){
+    btns[j].addEventListener('click', function(){ removeKeyword(parseInt(this.getAttribute('data-i'))); });
+  }
 }
-function addKeyword(){
-  const inp=document.getElementById('kw-input'), v=inp.value.trim();
-  if(v && !keywords.includes(v)){ keywords.push(v); saveKeywords(); renderKeywords(); }
-  inp.value=''; inp.focus();
-}
-function removeKeyword(i){ keywords.splice(i,1); saveKeywords(); renderKeywords(); }
-function saveKeywords(){ localStorage.setItem('jw-keywords',JSON.stringify(keywords)); }
 
-// ── Search ────────────────────────────────────────────────────────────────
+function addKeyword(){
+  var inp = document.getElementById('kw-input');
+  var v = inp.value.trim();
+  if(v && keywords.indexOf(v) === -1){ keywords.push(v); saveKeywords(); renderKeywords(); }
+  inp.value = '';
+  inp.focus();
+}
+
+function removeKeyword(i){ keywords.splice(i,1); saveKeywords(); renderKeywords(); }
+function saveKeywords(){ try{ localStorage.setItem('jw-keywords', JSON.stringify(keywords)); }catch(e){} }
+
+document.getElementById('btn-add').addEventListener('click', addKeyword);
+document.getElementById('kw-input').addEventListener('keydown', function(e){ if(e.key==='Enter') addKeyword(); });
+
+document.getElementById('btn-search').addEventListener('click', doSearch);
+
 async function doSearch(){
   if(!keywords.length){ showError('Ajoute au moins un mot-clé.'); return; }
   hideError();
-  const location = document.getElementById('loc-input').value.trim() || 'vaud';
-  const btn = document.getElementById('btn-search');
-  btn.disabled=true; btn.textContent='⏳ Recherche…';
-  document.getElementById('results-section').style.display='none';
+  var location = document.getElementById('loc-input').value.trim() || 'vaud';
+  var btn = document.getElementById('btn-search');
+  btn.disabled = true; btn.textContent = '⏳ Recherche…';
+  document.getElementById('results-section').style.display = 'none';
   document.getElementById('loading-box').classList.add('visible');
 
   try {
-    const res = await fetch('/api/search',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({keywords, location}),
+    var res = await fetch('/api/search', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({keywords: keywords, location: location}),
     });
-    const data = await res.json();
-    if(!res.ok){ showError(data.error||'Erreur serveur'); return; }
+    var data = await res.json();
+
+    if(data.debug){
+      showError('DEBUG: ' + JSON.stringify(data.debug));
+      return;
+    }
+
+    if(!res.ok){ showError('Erreur serveur: ' + (data.error||res.status)); return; }
+
     offerStore = data.offers || [];
-    if(!offerStore.length) showError('showError(JSON.stringify(data.debug || 'pas de debug'));');
+    if(!offerStore.length) showError('Aucune offre trouvée. Essaie une région plus large (ex: suisse).');
     else renderOffers(offerStore);
+
   } catch(err){
-    showError('Erreur de connexion. Réessaie dans un instant.');
+    showError('Erreur connexion: ' + err.message);
   } finally {
     document.getElementById('loading-box').classList.remove('visible');
-    btn.disabled=false; btn.textContent='🔍 Chercher les offres';
+    btn.disabled = false; btn.textContent = '🔍 Chercher les offres';
   }
 }
 
-// ── Sort ──────────────────────────────────────────────────────────────────
-function sortOffers(mode, btn){
-  document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  if(mode==='date') offerStore.sort((a,b)=>new Date(b.pubDate||0)-new Date(a.pubDate||0));
-  else offerStore.sort((a,b)=>countMatches(b)-countMatches(a));
-  renderOffers(offerStore);
+function getSource(link){
+  if(!link) return '?';
+  if(link.indexOf('jobs.ch')>-1) return 'JCH';
+  if(link.indexOf('jobup')>-1)   return 'JUP';
+  if(link.indexOf('linkedin')>-1)return 'LIN';
+  return '🌐';
+}
+
+function fmtDate(d){
+  if(!d) return '';
+  try{ return new Date(d).toLocaleDateString('fr-CH',{day:'2-digit',month:'2-digit'}); }catch(e){ return ''; }
 }
 
 function countMatches(o){
-  const hay=(o.title+' '+o.desc).toLowerCase();
-  return keywords.filter(k=>hay.includes(k.toLowerCase())).length;
-}
-
-// ── Render ────────────────────────────────────────────────────────────────
-function escHtml(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
-function highlight(text){
-  let r=escHtml(text);
-  keywords.forEach(k=>{
-    r=r.replace(new RegExp(`(${escRe(k)})`,'gi'),'<span class="match-highlight">$1</span>');
-  });
-  return r;
-}
-function getSource(link){
-  if(!link) return '?';
-  if(link.includes('jobs.ch')) return 'JCH';
-  if(link.includes('jobup'))   return 'JUP';
-  if(link.includes('linkedin'))return 'LIN';
-  if(link.includes('indeed'))  return 'IND';
-  return '🌐';
-}
-function fmtDate(d){
-  if(!d) return '';
-  try{ return new Date(d).toLocaleDateString('fr-CH',{day:'2-digit',month:'2-digit'}); }catch{ return ''; }
+  var hay = ((o.title||'')+' '+(o.desc||'')).toLowerCase();
+  var c=0; for(var i=0;i<keywords.length;i++){ if(hay.indexOf(keywords[i].toLowerCase())>-1) c++; }
+  return c;
 }
 
 function renderOffers(offers){
-  const n=offers.length;
-  document.getElementById('results-label').textContent=`${n} offre${n>1?'s':''} trouvée${n>1?'s':''} — jobs.ch · jobup.ch`;
-  document.getElementById('offers-grid').innerHTML=offers.map((o,i)=>{
-    const oid=`rss-${i}`;
-    const already=applications.some(a=>a.offerId===oid);
-    const m=countMatches(o);
-    return `<div class="offer-card${already?' selected':''}" id="card-${oid}" style="animation-delay:${i*.04}s">
-      <div class="offer-card-top" onclick="toggleCard('${oid}')">
-        <div class="offer-source">${getSource(o.link)}</div>
-        <div class="offer-main">
-          <div class="offer-title">${highlight(o.title)}</div>
-          <div class="offer-company">${escHtml(o.company||'')}${o.location?' · 📍'+escHtml(o.location):''}</div>
-          <div class="offer-meta">
-            <span class="tag tag-green">🎯 ${m} mot${m>1?'s':''} clé</span>
-            ${already?'<span class="tag tag-blue">✓ Postulé</span>':''}
-            <span class="offer-date">${fmtDate(o.pubDate)}</span>
-          </div>
-        </div>
-      </div>
-      <div class="offer-desc">
-        <p style="margin-bottom:10px">${highlight(o.desc||'Aucune description disponible.')}</p>
-        <div class="offer-actions">
-          ${o.link?`<a class="btn-voir" href="${escHtml(o.link)}" target="_blank">🔗 Voir l'annonce →</a>`:''}
-          <button class="btn-jp ${already?'btn-jp-done':'btn-jp-ready'}" id="jp-${oid}" ${already?'disabled':''} onclick="openModal('${oid}',${i})">
-            ${already?'✓ Postulé':"J'ai postulé ✓"}
-          </button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-  document.getElementById('results-section').style.display='block';
+  var n = offers.length;
+  document.getElementById('results-label').textContent = n+' offre'+(n>1?'s':'')+' trouvée'+(n>1?'s':'')+' — jobs.ch · jobup.ch';
+  var html = '';
+  for(var i=0;i<offers.length;i++){
+    var o = offers[i];
+    var oid = 'rss-'+i;
+    var already = false;
+    for(var j=0;j<applications.length;j++){ if(applications[j].offerId===oid){already=true;break;} }
+    var m = countMatches(o);
+    html += '<div class="offer-card'+(already?' selected':'')+'" id="card-'+oid+'" style="animation-delay:'+(i*.04)+'s">';
+    html += '<div class="offer-card-top" data-oid="'+oid+'">';
+    html += '<div class="offer-source">'+getSource(o.link)+'</div>';
+    html += '<div class="offer-main">';
+    html += '<div class="offer-title">'+esc(o.title)+'</div>';
+    html += '<div class="offer-company">'+esc(o.company||'')+(o.location?' · 📍'+esc(o.location):'')+'</div>';
+    html += '<div class="offer-meta"><span class="tag tag-green">🎯 '+m+' mot'+(m>1?'s':'')+' clé</span>'+(already?'<span class="tag tag-blue">✓ Postulé</span>':'')+'<span class="offer-date">'+fmtDate(o.pubDate)+'</span></div>';
+    html += '</div></div>';
+    html += '<div class="offer-desc">';
+    html += '<p style="margin-bottom:10px">'+esc(o.desc||'Aucune description.')+'</p>';
+    html += '<div class="offer-actions">';
+    if(o.link) html += '<a class="btn-voir" href="'+esc(o.link)+'" target="_blank">🔗 Voir l\'annonce →</a>';
+    html += '<button class="btn-jp '+(already?'btn-jp-done':'btn-jp-ready')+'" id="jp-'+oid+'" data-oid="'+oid+'" data-idx="'+i+'" '+(already?'disabled':'')+'>'+( already?'✓ Postulé':"J'ai postulé ✓")+'</button>';
+    html += '</div></div></div>';
+  }
+  document.getElementById('offers-grid').innerHTML = html;
+
+  var tops = document.getElementById('offers-grid').querySelectorAll('.offer-card-top');
+  for(var k=0;k<tops.length;k++){
+    tops[k].addEventListener('click', function(){ document.getElementById('card-'+this.getAttribute('data-oid')).classList.toggle('expanded'); });
+  }
+  var jpBtns = document.getElementById('offers-grid').querySelectorAll('.btn-jp-ready');
+  for(var l=0;l<jpBtns.length;l++){
+    jpBtns[l].addEventListener('click', function(e){ e.stopPropagation(); openModal(this.getAttribute('data-oid'), parseInt(this.getAttribute('data-idx'))); });
+  }
+
+  document.getElementById('results-section').style.display = 'block';
 }
 
-function toggleCard(oid){
-  document.getElementById(`card-${oid}`)?.classList.toggle('expanded');
-}
-
-// ── Modal ─────────────────────────────────────────────────────────────────
-function openModal(oid,idx){
-  const o=offerStore[idx]; if(!o) return;
-  pendingOffer={...o,_oid:oid,_idx:idx};
-  document.getElementById('modal-offer-info').innerHTML=`<div class="ti">${escHtml(o.title)}</div><div class="co">${escHtml(o.company||'')}${o.location?' · '+escHtml(o.location):''}</div>`;
+function openModal(oid, idx){
+  var o = offerStore[idx]; if(!o) return;
+  pendingOffer = {title:o.title, company:o.company, location:o.location, link:o.link, _oid:oid};
+  document.getElementById('modal-offer-info').innerHTML = '<div class="ti">'+esc(o.title)+'</div><div class="co">'+esc(o.company||'')+(o.location?' · '+esc(o.location):'')+'</div>';
   document.getElementById('confirm-modal').classList.add('open');
 }
-function closeModal(){ document.getElementById('confirm-modal').classList.remove('open'); pendingOffer=null; }
-function confirmApply(){
+
+document.getElementById('btn-mcancel').addEventListener('click', function(){ document.getElementById('confirm-modal').classList.remove('open'); pendingOffer=null; });
+document.getElementById('btn-mconfirm').addEventListener('click', function(){
   if(!pendingOffer) return;
-  const o=pendingOffer;
-  const app={
-    id:Date.now(), offerId:o._oid,
-    company:o.company||'—', title:o.title,
-    location:o.location||'—', contract:'—',
-    salary:'', link:o.link,
-    appliedDate:new Date().toISOString().split('T')[0],
-    responseDate:'', status:'En attente',
-  };
+  var o = pendingOffer;
+  var app = { id:Date.now(), offerId:o._oid, company:o.company||'—', title:o.title, location:o.location||'—', contract:'—', salary:'', link:o.link, appliedDate:new Date().toISOString().split('T')[0], responseDate:'', status:'En attente' };
   applications.unshift(app);
   saveApps();
-  const btn=document.getElementById(`jp-${o._oid}`);
-  if(btn){btn.textContent='✓ Postulé';btn.className='btn-jp btn-jp-done';btn.disabled=true;}
-  document.getElementById(`card-${o._oid}`)?.classList.add('selected');
-  closeModal(); updateBadge();
-  showToast(`✓ Candidature chez ${app.company} ajoutée !`);
+  var btn = document.getElementById('jp-'+o._oid);
+  if(btn){ btn.textContent='✓ Postulé'; btn.className='btn-jp btn-jp-done'; btn.disabled=true; }
+  var card = document.getElementById('card-'+o._oid);
+  if(card) card.classList.add('selected');
+  document.getElementById('confirm-modal').classList.remove('open');
+  pendingOffer = null;
+  updateBadge();
+  showToast('✓ Candidature chez '+(app.company)+' ajoutée !');
   renderTracker();
-}
+});
 
-// ── Tracker ───────────────────────────────────────────────────────────────
 function renderTracker(){ renderStats(); renderFilters(); renderTable(); }
 function renderStats(){
-  document.getElementById('stats-row').innerHTML=[
-    {l:'Total',      v:applications.length,                                    c:'var(--text)'},
-    {l:'En attente', v:applications.filter(a=>a.status==='En attente').length, c:'var(--warning)'},
-    {l:'Entretien',  v:applications.filter(a=>a.status==='Entretien').length,  c:'var(--info)'},
-    {l:'Accepté',    v:applications.filter(a=>a.status==='Accepté').length,    c:'var(--accent)'},
-    {l:'Refusé',     v:applications.filter(a=>a.status==='Refusé').length,     c:'var(--danger)'},
-  ].map(r=>`<div class="stat-card"><div class="stat-num" style="color:${r.c}">${r.v}</div><div class="stat-lbl">${r.l}</div></div>`).join('');
+  var s = [
+    {l:'Total',      v:applications.length, c:'var(--text)'},
+    {l:'En attente', v:applications.filter(function(a){return a.status==='En attente';}).length, c:'var(--warning)'},
+    {l:'Entretien',  v:applications.filter(function(a){return a.status==='Entretien';}).length,  c:'var(--info)'},
+    {l:'Accepte',    v:applications.filter(function(a){return a.status==='Accepte';}).length,    c:'var(--accent)'},
+    {l:'Refuse',     v:applications.filter(function(a){return a.status==='Refuse';}).length,     c:'var(--danger)'},
+  ];
+  var html=''; for(var i=0;i<s.length;i++) html+='<div class="stat-card"><div class="stat-num" style="color:'+s[i].c+'">'+s[i].v+'</div><div class="stat-lbl">'+s[i].l+'</div></div>';
+  document.getElementById('stats-row').innerHTML = html;
 }
 function renderFilters(){
-  document.getElementById('filter-row').innerHTML=['Tous',...STATUS_LIST].map(f=>
-    `<button class="filter-btn ${currentFilter===f?'active':''}" onclick="setFilter('${f}')">${f}</button>`
-  ).join('');
+  var fs = ['Tous'].concat(STATUS_LIST);
+  var html=''; for(var i=0;i<fs.length;i++) html+='<button class="filter-btn'+(currentFilter===fs[i]?' active':'')+'" data-f="'+fs[i]+'">'+fs[i]+'</button>';
+  document.getElementById('filter-row').innerHTML = html;
+  var btns = document.getElementById('filter-row').querySelectorAll('button');
+  for(var j=0;j<btns.length;j++) btns[j].addEventListener('click', function(){ currentFilter=this.getAttribute('data-f'); renderFilters(); renderTable(); });
 }
-function setFilter(f){ currentFilter=f; renderFilters(); renderTable(); }
 function renderTable(){
-  const c=document.getElementById('tracker-content');
-  const arr=currentFilter==='Tous'?applications:applications.filter(a=>a.status===currentFilter);
+  var c = document.getElementById('tracker-content');
+  var arr = currentFilter==='Tous' ? applications : applications.filter(function(a){return a.status===currentFilter;});
   if(!arr.length){
-    c.innerHTML=`<div class="empty-state"><div class="ei">${applications.length===0?'📭':'🔍'}</div>
-    <h3>${applications.length===0?'Aucune candidature pour l\'instant':'Aucun résultat'}</h3>
-    <p>${applications.length===0?'Trouve une offre, clique dessus, puis sur "J\'ai postulé ✓".':'Essaie un autre filtre.'}</p></div>`;
+    c.innerHTML='<div class="empty-state"><div class="ei">'+(applications.length===0?'📭':'🔍')+'</div><h3>'+(applications.length===0?'Aucune candidature':'Aucun résultat')+'</h3><p>'+(applications.length===0?'Trouve une offre et clique sur "J\'ai postulé ✓".':'Essaie un autre filtre.')+'</p></div>';
     return;
   }
-  c.innerHTML=`<div class="table-wrap"><table>
-    <thead><tr><th>Entreprise</th><th>Poste</th><th>Lieu</th><th>Postulé le</th><th>Réponse</th><th>Statut</th><th></th></tr></thead>
-    <tbody>${arr.map(a=>`<tr>
-      <td class="td-co">${a.link?`<a href="${escHtml(a.link)}" target="_blank">${escHtml(a.company)} <span style="color:var(--info);font-size:10px">↗</span></a>`:escHtml(a.company)}</td>
-      <td>${escHtml(a.title)}</td>
-      <td class="td-m">📍 ${escHtml(a.location||'—')}</td>
-      <td class="td-mono">${fmt(a.appliedDate)}</td>
-      <td><input type="date" class="date-input" value="${a.responseDate||''}" onchange="updateField(${a.id},'responseDate',this.value)"/></td>
-      <td><span class="status-badge ${STATUS_CLS[a.status]||'s-attente'}" onclick="cycleStatus(${a.id},this)">${STATUS_ICON[a.status]||'⏳'} ${a.status}</span></td>
-      <td><button class="btn-del" onclick="delApp(${a.id})">🗑</button></td>
-    </tr>`).join('')}</tbody></table></div>`;
+  var html='<div class="table-wrap"><table><thead><tr><th>Entreprise</th><th>Poste</th><th>Lieu</th><th>Postulé le</th><th>Réponse</th><th>Statut</th><th></th></tr></thead><tbody>';
+  for(var i=0;i<arr.length;i++){
+    var a=arr[i];
+    html+='<tr>';
+    html+='<td class="td-co">'+(a.link?'<a href="'+esc(a.link)+'" target="_blank">'+esc(a.company)+' <span style="color:var(--info);font-size:10px">↗</span></a>':esc(a.company))+'</td>';
+    html+='<td>'+esc(a.title)+'</td>';
+    html+='<td class="td-m">📍 '+esc(a.location||'—')+'</td>';
+    html+='<td class="td-mono">'+fmt(a.appliedDate)+'</td>';
+    html+='<td><input type="date" class="date-input" value="'+(a.responseDate||'')+'" data-id="'+a.id+'"/></td>';
+    html+='<td><span class="status-badge '+(STATUS_CLS[a.status]||'s-attente')+'" data-id="'+a.id+'">'+(STATUS_ICON[a.status]||'⏳')+' '+a.status+'</span></td>';
+    html+='<td><button class="btn-del" data-id="'+a.id+'">🗑</button></td>';
+    html+='</tr>';
+  }
+  html+='</tbody></table></div>';
+  c.innerHTML=html;
+  c.querySelectorAll('.status-badge').forEach(function(el){ el.addEventListener('click', function(){ cycleStatus(parseInt(this.getAttribute('data-id')),this); }); });
+  c.querySelectorAll('.date-input').forEach(function(el){ el.addEventListener('change', function(){ updateField(parseInt(this.getAttribute('data-id')),'responseDate',this.value); }); });
+  c.querySelectorAll('.btn-del').forEach(function(el){ el.addEventListener('click', function(){ delApp(parseInt(this.getAttribute('data-id'))); }); });
 }
-function cycleStatus(id,el){
-  const a=applications.find(x=>x.id===id);if(!a)return;
-  a.status=STATUS_LIST[(STATUS_LIST.indexOf(a.status)+1)%STATUS_LIST.length];
-  saveApps();renderStats();
-  el.className=`status-badge ${STATUS_CLS[a.status]}`;
-  el.innerHTML=`${STATUS_ICON[a.status]} ${a.status}`;
-}
-function updateField(id,f,v){const a=applications.find(x=>x.id===id);if(a){a[f]=v;saveApps();}}
-function delApp(id){if(!confirm('Supprimer ?'))return;applications=applications.filter(a=>a.id!==id);saveApps();updateBadge();renderTracker();}
-function saveApps(){localStorage.setItem('jw-apps',JSON.stringify(applications));}
-function fmt(d){if(!d)return'—';const[y,m,day]=d.split('-');return`${day}.${m}.${y}`;}
-function updateBadge(){const b=document.getElementById('badge');b.style.display=applications.length?'inline':'none';b.textContent=applications.length;}
-let toastTimer;
-function showToast(msg){clearTimeout(toastTimer);document.getElementById('toast-msg').textContent=msg;const t=document.getElementById('toast');t.classList.add('show');toastTimer=setTimeout(()=>t.classList.remove('show'),3200);}
-function showError(m){document.getElementById('error-msg').textContent=m;document.getElementById('error-box').classList.add('visible');}
-function hideError(){document.getElementById('error-box').classList.remove('visible');}
-function showPage(name,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');btn.classList.add('active');if(name==='tracker')renderTracker();}
+function cycleStatus(id,el){ var a=applications.find(function(x){return x.id===id;}); if(!a)return; a.status=STATUS_LIST[(STATUS_LIST.indexOf(a.status)+1)%STATUS_LIST.length]; saveApps(); renderStats(); el.className='status-badge '+(STATUS_CLS[a.status]||'s-attente'); el.textContent=(STATUS_ICON[a.status]||'⏳')+' '+a.status; }
+function updateField(id,f,v){ var a=applications.find(function(x){return x.id===id;}); if(a){a[f]=v;saveApps();} }
+function delApp(id){ if(!confirm('Supprimer ?'))return; applications=applications.filter(function(a){return a.id!==id;}); saveApps(); updateBadge(); renderTracker(); }
+function saveApps(){ try{localStorage.setItem('jw-apps',JSON.stringify(applications));}catch(e){} }
+function fmt(d){ if(!d)return'—'; var p=d.split('-'); return p[2]+'.'+p[1]+'.'+p[0]; }
+function updateBadge(){ var b=document.getElementById('badge'); b.style.display=applications.length?'inline':'none'; b.textContent=applications.length; }
+var toastTimer;
+function showToast(msg){ clearTimeout(toastTimer); document.getElementById('toast-msg').textContent=msg; var t=document.getElementById('toast'); t.classList.add('show'); toastTimer=setTimeout(function(){t.classList.remove('show');},3200); }
+function showError(m){ var b=document.getElementById('error-box'); b.textContent=m; b.classList.add('visible'); }
+function hideError(){ document.getElementById('error-box').classList.remove('visible'); }
+function showPage(name,btn){ document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');}); document.querySelectorAll('.nav-tab').forEach(function(b){b.classList.remove('active');}); document.getElementById('page-'+name).classList.add('active'); btn.classList.add('active'); if(name==='tracker')renderTracker(); }
 
-renderKeywords(); updateBadge();
+renderKeywords();
+updateBadge();
 </script>
 </body>
 </html>
