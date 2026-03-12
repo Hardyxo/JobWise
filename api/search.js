@@ -7,10 +7,22 @@ export default async function handler(req, res) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) { res.status(500).json({ error: 'Clé API manquante' }); return; }
 
-  const { keywords, location } = req.body || {};
-  if (!keywords?.length) { res.status(400).json({ error: 'Mots-clés requis' }); return; }
+  // Lire le body manuellement
+  let keywords = [], location = 'Suisse';
+  try {
+    const buffers = [];
+    for await (const chunk of req) buffers.push(chunk);
+    const raw = Buffer.concat(buffers).toString();
+    const parsed = JSON.parse(raw);
+    keywords = parsed.keywords || [];
+    location = parsed.location || 'Suisse';
+  } catch(e) {
+    res.status(400).json({ error: 'Body invalide' }); return;
+  }
 
-  const prompt = `Tu es un expert du marché de l'emploi en Suisse. Génère 5 offres d'emploi réalistes pour : ${keywords.join(', ')}. Zone : ${location || 'Suisse'}.
+  if (!keywords.length) { res.status(400).json({ error: 'Mots-clés requis' }); return; }
+
+  const prompt = `Tu es un expert du marché de l'emploi en Suisse. Génère 5 offres d'emploi réalistes pour : ${keywords.join(', ')}. Zone : ${location}.
 
 Format exact à respecter pour chaque offre :
 ---OFFRE---
