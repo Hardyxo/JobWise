@@ -1,42 +1,30 @@
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  
   if (req.method === 'OPTIONS') { res.status(200).end(); return; }
   if (req.method !== 'POST') { res.status(405).json({ error: 'Method not allowed' }); return; }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) { res.status(500).json({ error: 'Clé API manquante' }); return; }
 
-  // Lire le body manuellement
-  let keywords = [], location = 'Suisse';
-  try {
-    const buffers = [];
-    for await (const chunk of req) buffers.push(chunk);
-    const raw = Buffer.concat(buffers).toString();
-    const parsed = JSON.parse(raw);
-    keywords = parsed.keywords || [];
-    location = parsed.location || 'Suisse';
-  } catch(e) {
-    res.status(400).json({ error: 'Body invalide' }); return;
-  }
+  const keywords = req.body?.keywords || [];
+  const location = req.body?.location || 'Suisse';
 
-  if (!keywords.length) { res.status(400).json({ error: 'Mots-clés requis' }); return; }
-
-  const prompt = `Tu es un expert du marché de l'emploi en Suisse. Génère 5 offres d'emploi réalistes pour : ${keywords.join(', ')}. Zone : ${location}.
-
-Format exact à respecter pour chaque offre :
+  const prompt = `Génère 5 offres d'emploi en Suisse pour : ${keywords.join(', ')}. Zone : ${location}.
+Respecte ce format pour chaque offre :
 ---OFFRE---
-Entreprise: [nom d'une vraie entreprise suisse]
-Poste: [titre du poste]
+Entreprise: [entreprise suisse]
+Poste: [titre]
 Lieu: [ville, canton]
-Contrat: [CDI ou CDD ou Stage ou Freelance]
-Salaire: [salaire annuel en CHF]
+Contrat: CDI
+Salaire: [salaire en CHF/an]
 Lien: https://www.jobs.ch
-Description: [3-4 phrases sur le rôle, les missions et compétences requises]
+Description: [3 phrases sur le rôle et les compétences]
 ---FIN---`;
 
   try {
-    const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -50,9 +38,10 @@ Description: [3-4 phrases sur le rôle, les missions et compétences requises]
       }),
     });
 
-    const data = await anthropicRes.json();
-    if (!anthropicRes.ok) {
-      res.status(502).json({ error: `Erreur Anthropic ${anthropicRes.status}`, detail: JSON.stringify(data) });
+    const data = await r.json();
+    
+    if (!r.ok) {
+      res.status(200).json({ text: '', debug: JSON.stringify(data) });
       return;
     }
 
@@ -60,6 +49,6 @@ Description: [3-4 phrases sur le rôle, les missions et compétences requises]
     res.status(200).json({ text });
 
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(200).json({ text: '', debug: err.message });
   }
 }
