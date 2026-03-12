@@ -36,7 +36,7 @@ Description: [3-4 phrases décrivant le poste, les missions et compétences requ
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
+        model: 'claude-sonnet-4-20250514',
         max_tokens: premium ? 6000 : 3000,
         tools: [{ type: 'web_search_20250305', name: 'web_search' }],
         messages: [{ role: 'user', content: prompt }],
@@ -49,7 +49,6 @@ Description: [3-4 phrases décrivant le poste, les missions et compétences requ
       return;
     }
 
-    // Extraire tout le texte des blocs de réponse
     const text = (data.content || [])
       .filter(b => b.type === 'text')
       .map(b => b.text)
