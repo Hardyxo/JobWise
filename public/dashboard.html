@@ -348,8 +348,10 @@ async function doSearch(){
     const data=await res.json();
     if(!res.ok){showError(`Erreur : ${data.error||'Problème serveur ('+res.status+')'}`);return;}
     offerStore=parseOffers(data.text||'');
-    if(!offerStore.length)showError('Aucune offre trouvée. Essaie d\'autres mots-clés ou élargis le rayon.');
-    else renderOffers(offerStore);
+if(!offerStore.length) {
+  const msg = data.debug ? 'DEBUG: '+data.debug : ('Texte reçu: '+(data.text||'(vide)').slice(0,200));
+  showError(msg);
+} else renderOffers(offerStore);
   }catch(err){
     if(err.name==='AbortError')showToast('Recherche annulée.');
     else showError('Erreur de connexion. Réessaie dans un instant.');
