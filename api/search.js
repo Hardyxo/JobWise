@@ -8,8 +8,10 @@ export default async function handler(req, res) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) { res.status(500).json({ error: 'Clé API manquante' }); return; }
 
-  const keywords = req.body?.keywords || [];
-  const location = req.body?.location || 'Suisse';
+ const keywords = req.body?.keywords || [];
+const location = req.body?.location || 'Suisse';
+const premium = req.body?.premium || false;
+const nbOffres = premium ? 20 : 5;
 
   const prompt = `Génère 5 offres d'emploi en Suisse pour : ${keywords.join(', ')}. Zone : ${location}.
 Respecte ce format pour chaque offre :
