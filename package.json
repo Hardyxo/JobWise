@@ -1,5 +1,6 @@
 {
   "name": "jobwise",
   "version": "1.0.0",
+  "type": "module",
   "description": "JobWise - Recherche d'emploi IA pour la Suisse"
 }
