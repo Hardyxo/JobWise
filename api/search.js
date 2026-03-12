@@ -8,6 +8,20 @@ export default async function handler(req, res) {
   if (!apiKey) { res.status(500).json({ error: 'Clé API manquante' }); return; }
 
   const { keywords, location } = req.body || {};
+  if (!keywords?.length) { res.status(400).json({ error: 'Mots-clés requis' }); return; }
+
+  const prompt = `Tu es un expert du marché de l'emploi en Suisse. Génère 5 offres d'emploi réalistes pour : ${keywords.join(', ')}. Zone : ${location || 'Suisse'}.
+
+Format exact à respecter pour chaque offre :
+---OFFRE---
+Entreprise: [nom d'une vraie entreprise suisse]
+Poste: [titre du poste]
+Lieu: [ville, canton]
+Contrat: [CDI ou CDD ou Stage ou Freelance]
+Salaire: [salaire annuel en CHF]
+Lien: https://www.jobs.ch
+Description: [3-4 phrases sur le rôle, les missions et compétences requises]
+---FIN---`;
 
   try {
     const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
@@ -19,13 +33,19 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-3-haiku-20240307',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: `Dis juste "bonjour, ça marche !"` }],
+        max_tokens: 2000,
+        messages: [{ role: 'user', content: prompt }],
       }),
     });
 
     const data = await anthropicRes.json();
-    res.status(200).json({ status: anthropicRes.status, data });
+    if (!anthropicRes.ok) {
+      res.status(502).json({ error: `Erreur Anthropic ${anthropicRes.status}`, detail: JSON.stringify(data) });
+      return;
+    }
+
+    const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+    res.status(200).json({ text });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
