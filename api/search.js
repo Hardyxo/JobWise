@@ -1,28 +1,30 @@
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  
   if (req.method === 'OPTIONS') { res.status(200).end(); return; }
   if (req.method !== 'POST') { res.status(405).json({ error: 'Method not allowed' }); return; }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) { res.status(500).json({ error: 'Clé API manquante' }); return; }
 
- const keywords = req.body?.keywords || [];
-const location = req.body?.location || 'Suisse';
-const premium = req.body?.premium || false;
-const nbOffres = premium ? 20 : 5;
+  const keywords = req.body?.keywords || [];
+  const location = req.body?.location || 'Suisse';
+  const premium = req.body?.premium || false;
+  const nbOffres = premium ? 20 : 5;
 
-  const prompt = `Génère 5 offres d'emploi en Suisse pour : ${keywords.join(', ')}. Zone : ${location}.
-Respecte ce format pour chaque offre :
+  const prompt = `Recherche ${nbOffres} offres d'emploi actuellement disponibles en Suisse sur jobs.ch, jobup.ch, indeed.ch et linkedin.com.
+Mots-clés : ${keywords.join(', ')}. Zone : ${location}.
+Utilise la recherche web pour trouver de vraies annonces récentes.
+
+Format exact pour chaque offre trouvée :
 ---OFFRE---
-Entreprise: [entreprise suisse]
-Poste: [titre]
+Entreprise: [nom réel de l'entreprise]
+Poste: [titre exact de l'annonce]
 Lieu: [ville, canton]
-Contrat: CDI
-Salaire: [salaire en CHF/an]
-Lien: https://www.jobs.ch
-Description: [3 phrases sur le rôle et les compétences]
+Contrat: [CDI ou CDD ou Stage ou Freelance]
+Salaire: [salaire indiqué ou "Non précisé"]
+Lien: [URL exacte de l'annonce]
+Description: [3-4 phrases décrivant le poste, les missions et compétences requises]
 ---FIN---`;
 
   try {
@@ -35,22 +37,27 @@ Description: [3 phrases sur le rôle et les compétences]
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 2000,
+        max_tokens: premium ? 6000 : 3000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
         messages: [{ role: 'user', content: prompt }],
       }),
     });
 
     const data = await r.json();
-    
     if (!r.ok) {
-      res.status(200).json({ text: '', debug: JSON.stringify(data) });
+      res.status(502).json({ error: `Erreur Anthropic ${r.status}`, detail: JSON.stringify(data) });
       return;
     }
 
-    const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+    // Extraire tout le texte des blocs de réponse
+    const text = (data.content || [])
+      .filter(b => b.type === 'text')
+      .map(b => b.text)
+      .join('');
+
     res.status(200).json({ text });
 
   } catch (err) {
-    res.status(200).json({ text: '', debug: err.message });
+    res.status(500).json({ error: err.message });
   }
 }
